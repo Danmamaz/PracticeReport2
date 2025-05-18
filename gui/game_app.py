@@ -1,18 +1,19 @@
 import customtkinter as ctk
-from models.entity import *
+from models.location import *
 
 
-class App(ctk.CTk):
+class App(ctk.CTk, CrossModuleSupport):
     def __init__(self):
         super().__init__()
         self.geometry("700x400")
         self.title("Game")
         self.resizable(False, False)
+        ctk.set_appearance_mode("light")
+        self.selected_char = None
+
         self.tabview = None
         self.start_button = None
         self.player_buttons = []
-        self.round_counter = 0
-        ctk.set_appearance_mode("light")
 
         self.create_ui()
 
@@ -22,31 +23,87 @@ class App(ctk.CTk):
         self.tabview.pack(expand=True, fill="both")
 
         # Buttons for game and tutorial
+
+        self.heading = ctk.CTkLabel(self.tabview.tabs["Fight"], text="Select character")
+        self.heading.pack()
+
+        self.characters_f = ctk.CTkFrame(self.tabview.tabs["Fight"])
+        for i, char in enumerate(["Warrior", "Char 2", "Char 3"]):
+            frame = ctk.CTkFrame(self.characters_f)
+            heading = ctk.CTkLabel(frame, text=f"{char}")
+            img_box = ctk.CTkLabel(frame, text="", fg_color="gray", width=100, height=100)
+            button = ctk.CTkButton(frame, text=f"Pick {i}", command=lambda c=char: self.select_character(c))
+            heading.pack()
+            img_box.pack()
+            button.pack()
+            frame.pack(side="left")
+
+        self.characters_f.pack()
+
+
         self.start_button = ctk.CTkButton(self.tabview.tabs["Fight"], text="Start new run",
-                                          command=self.init_fight)
+                                          command=self.init_run)
         self.start_button.pack()
 
-    def init_fight(self, player=Warrior(100, 0, (24, 30)),
-                        enemy=Entity(100, 0, (24, 30))):
+    def select_character(self, name):
+        self.selected_char = eval(f"{name}()")
 
-        # forgetting old button and create point variable for objects to pack
-        self.start_button.pack_forget()
+    def init_run(self):
+        if self.selected_char:
+            location = Location(1, "forest")
+            CrossModuleSupport.location = location
+            self.init_fight(self.selected_char, location.enemy_encounter())
+
+        else:
+            self.heading.configure(text="You cant start a run\nif you not picked character")
+
+    def init_shop(self):
+        # forgetting old widgets and create point variable for objects to pack
+        for child in self.tabview.tabs["Fight"].winfo_children():
+            child.pack_forget()
+        land = self.tabview.tabs["Fight"]
+
+        heading = ctk.CTkLabel(land, text="Shop")
+        heading.pack()
+
+        items_frame = ctk.CTkFrame(land)
+        items_frame.pack()
+        for i in ["Item 1", "Item 2", "Item 3"]:
+            frame = ctk.CTkFrame(items_frame)
+            image = ctk.CTkLabel(frame, text="", width=75, height=75, fg_color="gray")
+            button = ctk.CTkButton(frame, text="Buy", command=None)
+
+            frame.pack(side="left")
+            image.pack()
+            button.pack()
+
+        button = ctk.CTkButton(land, text="Leave", command=lambda : self.init_fight(CrossModuleSupport.player, CrossModuleSupport.location.enemy_encounter()))
+        button.pack()
+
+
+    def new_location(self):
+        new_location = Location(2, )
+
+    def init_fight(self, player, enemy):
+        # forgetting old widgets and create point variable for objects to pack
+        for child in self.tabview.tabs["Fight"].winfo_children():
+            child.pack_forget()
         land = self.tabview.tabs["Fight"]
 
         # Enemy UI
-        enemy_name_l = ctk.CTkLabel(land, text="Enemy name")
+        enemy_name_l = ctk.CTkLabel(land, text=f"{enemy.image}")
         enemy_name_l.pack(padx=10)
 
         enemy_sprite = ctk.CTkLabel(land, width=75, height=75, fg_color="gray", text="")
         enemy_sprite.pack()
 
         enemy_health = ctk.CTkProgressBar(land, mode="determinate")
-        enemy_health.set((enemy.health * enemy.max_health / 100) / 100)
+        enemy_health.set(enemy.health / enemy.max_health)
         enemy_health.pack()
 
-        # Spacer between enemy and player
-        spacer = ctk.CTkLabel(land, height=150, text="")
-        spacer.pack()
+        # Info between enemy and player
+        info_l = ctk.CTkLabel(land, height=150, text="")
+        info_l.pack()
 
         # Player UI
         player_sprite = ctk.CTkLabel(land, width=75, height=75, fg_color="gray", text="")
@@ -59,25 +116,20 @@ class App(ctk.CTk):
         player_options = ctk.CTkFrame(land)
         for i, btn in enumerate(["Attack", "Defend", f"{player.unique_option_name}"]):
             option = ctk.CTkButton(player_options, text=btn, width=80, height=30, state="disabled",
-                                   command=player.options[i] if i != 0 else lambda t=enemy, hpb=enemy_health: player.attack(t, hpb))
+                                   command=player.options[i] if i != 0 else lambda : player.attack(enemy, enemy_health))
             option.pack(pady=15, side="left")
+            option.bind("<Button-1>", lambda e : self.toggle_moves())
             self.player_buttons.append(option)
 
+        player.option_buttons = CrossModuleSupport.player_buttons = self.player_buttons
+        CrossModuleSupport.enemy = enemy
+        CrossModuleSupport.player = player
+        CrossModuleSupport.player_hpb = player_health
+
+
         player_options.pack()
+        self.toggle_moves()
 
-    def toggle_moves(self):
-        if self.round_counter % 2 == 0:
-            player_move()
-        else:
-            ai_move()
-        self.round_counter += 1
-
-    def player_move(self):
-        for button in self.player_buttons:
-            button.configure(state="normal")
-        self.round_counter += 1
-
-    def ai_move(self):
 
 
 class VerticalTabView(ctk.CTkFrame):
