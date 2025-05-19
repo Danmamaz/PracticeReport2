@@ -2,7 +2,7 @@ import customtkinter as ctk
 from models.location import *
 
 
-class App(ctk.CTk, CrossModuleSupport):
+class App(ctk.CTk, CMS):
     def __init__(self):
         super().__init__()
         self.geometry("700x400")
@@ -23,9 +23,8 @@ class App(ctk.CTk, CrossModuleSupport):
         self.tabview.pack(expand=True, fill="both")
 
         # Buttons for game and tutorial
-
-        self.heading = ctk.CTkLabel(self.tabview.tabs["Fight"], text="Select character")
-        self.heading.pack()
+        heading = ctk.CTkLabel(self.tabview.tabs["Fight"], text="Select character")
+        heading.pack()
 
         self.characters_f = ctk.CTkFrame(self.tabview.tabs["Fight"])
         for i, char in enumerate(["Warrior", "Char 2", "Char 3"]):
@@ -40,7 +39,6 @@ class App(ctk.CTk, CrossModuleSupport):
 
         self.characters_f.pack()
 
-
         self.start_button = ctk.CTkButton(self.tabview.tabs["Fight"], text="Start new run",
                                           command=self.init_run)
         self.start_button.pack()
@@ -50,8 +48,8 @@ class App(ctk.CTk, CrossModuleSupport):
 
     def init_run(self):
         if self.selected_char:
-            location = Location(1, "forest")
-            CrossModuleSupport.location = location
+            location = Location("forest")
+            CMS.location = location
             self.init_fight(self.selected_char, location.enemy_encounter())
 
         else:
@@ -77,12 +75,13 @@ class App(ctk.CTk, CrossModuleSupport):
             image.pack()
             button.pack()
 
-        button = ctk.CTkButton(land, text="Leave", command=lambda : self.init_fight(CrossModuleSupport.player, CrossModuleSupport.location.enemy_encounter()))
+        button = ctk.CTkButton(land, text="Leave", command=lambda: self.init_fight(CMS.player, CMS.location.enemy_encounter()))
         button.pack()
 
-
-    def new_location(self):
-        new_location = Location(2, )
+    @staticmethod
+    def new_location(l_type):
+        new_location = Location(l_type)
+        CMS.location = new_location
 
     def init_fight(self, player, enemy):
         # forgetting old widgets and create point variable for objects to pack
@@ -98,7 +97,8 @@ class App(ctk.CTk, CrossModuleSupport):
         enemy_sprite.pack()
 
         enemy_health = ctk.CTkProgressBar(land, mode="determinate")
-        enemy_health.set(enemy.health / enemy.max_health)
+        enemy_health.set(1)
+        CMS.enemy_hpb = enemy_health
         enemy_health.pack()
 
         # Info between enemy and player
@@ -116,20 +116,18 @@ class App(ctk.CTk, CrossModuleSupport):
         player_options = ctk.CTkFrame(land)
         for i, btn in enumerate(["Attack", "Defend", f"{player.unique_option_name}"]):
             option = ctk.CTkButton(player_options, text=btn, width=80, height=30, state="disabled",
-                                   command=player.options[i] if i != 0 else lambda : player.attack(enemy, enemy_health))
+                                   command=player.options[i] if i != 0 else lambda: player.attack(enemy, enemy_health))
             option.pack(pady=15, side="left")
-            option.bind("<Button-1>", lambda e : self.toggle_moves())
+            option.bind("<Button-1>", lambda e: self.toggle_moves())
             self.player_buttons.append(option)
 
-        player.option_buttons = CrossModuleSupport.player_buttons = self.player_buttons
-        CrossModuleSupport.enemy = enemy
-        CrossModuleSupport.player = player
-        CrossModuleSupport.player_hpb = player_health
-
+        player.option_buttons = CMS.player_buttons = self.player_buttons
+        CMS.enemy = enemy
+        CMS.player = player
+        CMS.player_hpb = player_health
 
         player_options.pack()
         self.toggle_moves()
-
 
 
 class VerticalTabView(ctk.CTkFrame):

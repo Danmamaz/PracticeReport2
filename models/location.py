@@ -3,8 +3,7 @@ from random import choice
 
 
 class Location:
-    def __init__(self, location_n, loc_type):
-        self.difficulty_scaling = location_n
+    def __init__(self, loc_type):
         self.loc_type = loc_type
         self.stages = 5
         self.stage = 1
@@ -17,6 +16,7 @@ class Location:
                 Enemy(35, 5, (10, 15), "Rabbit", 30),
                 Enemy(25, 1, (22, 30), "Mushroom", 0)
                ]
+            self.boss = Boss(100, 30, (20, 30), "NIGGA", 50, "thorns")
         elif self.loc_type == "cave":
             self.enemy_pool = [
                 Enemy(20, 40, (12, 20), "Snail", 10),
@@ -25,6 +25,7 @@ class Location:
                 Enemy(20, 20, (15, 16), "Spider", 10),
                 Enemy(25, 10, (20, 30), "Rat", 45)
             ]
+
         elif self.loc_type == "water":
             self.enemy_pool = [
                 Enemy(25, 10, (12, 20), "PufferFish", 15),
@@ -42,4 +43,4 @@ class Location:
         pass
 
     def boss_encounter(self):
-        pass
+        return self.boss

@@ -1,16 +1,16 @@
 from models.mixins import *
 
 
-class Entity(CrossModuleSupport):
+class Entity(CMS):
     def __init__(self, health: int, armor: int, damage_range: tuple, image: str):
         self.dead = False
         self.health = health
         self.max_health = health
         self.armor = armor
         self.damage = range(*damage_range)
-        self.heal_amount = self.health * 20/100
+        self.heal_amount = self.max_health * 40/100
         self.defend_counter = 0
-        self.options = [self.attack, self.defend, self.unique_option]
+        self.options = [self.attack, self.defend]
         self.image = image
         self.money = 0
 
@@ -45,14 +45,13 @@ class Entity(CrossModuleSupport):
 
 
 class Warrior(Entity):
-    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (10,20), image: str = ""):
+    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (10, 20), image: str = ""):
         super().__init__(health, armor, damage_range, image)
         self.options = [self.attack, self.defend, self.buff]
         self.option_buttons = None
         self.buff_counts = 0
         self.buff_mult = 2
         self.unique_option_name = "Buff"
-
 
     def buff(self):
         self.buff_counts += 1
@@ -77,4 +76,33 @@ class Enemy(Entity):
     def __init__(self, health: int, armor: int, damage_range: tuple, image: str, money: int):
         super().__init__(health, armor, damage_range, image)
         self.money = money
+        self.options = [self.attack, self.defend, self.heal]
 
+    def heal(self):
+        self.health += self.heal_amount
+        CMS.enemy_hpb.set(self.health / self.max_health)
+        if self.health > self.max_health:
+            self.health = self.max_health
+        return f"Healed"
+
+
+class Boss(Enemy):
+    def __init__(self, health: int, armor: int, damage_range: tuple, image: str, money: int, special_move: str):
+        super().__init__(health, armor, damage_range, image, money)
+        self.thorns_flag = False
+        self.options = [self.attack, self.defend, self.unique_option, eval(f"self.{special_move}")]
+
+    def thorns(self):
+        self.thorns_flag = True
+
+    def take_damage(self, amount: int):
+        if self.defend_counter:
+            self.defend_counter -= 1
+            return "Damage blocked!"
+
+        self.health -= amount
+        if self.thorns_flag:
+            CMS.player.take_damage(amount/3)
+        if self.health <= 0:
+            self.dead = True
+        return f"-{amount} health"
