@@ -75,7 +75,7 @@ class App(ctk.CTk, CMS):
             image.pack()
             button.pack()
 
-        button = ctk.CTkButton(land, text="Leave", command=lambda: self.init_fight(CMS.player, CMS.location.enemy_encounter()))
+        button = ctk.CTkButton(land, text="Leave", command=lambda: self.toggle_moves())
         button.pack()
 
     @staticmethod

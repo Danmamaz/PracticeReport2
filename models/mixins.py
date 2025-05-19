@@ -49,13 +49,12 @@ class CMS:
         CMS.turn_counter = 0
         CMS.round_counter += 1
 
-        if CMS.round_counter == 4:
+        if CMS.round_counter == 4 or CMS.round_counter == -1:
             self.init_shop()
-            CMS.round_counter += 1
         elif CMS.round_counter == 5:
             self.init_fight(CMS.player, CMS.location.boss_encounter())
         elif CMS.round_counter == 6:
-            CMS.round_counter = 0
+            CMS.round_counter = -1
             CMS.location_i += 1
             self.new_location("cave" if CMS.location_i == 2 else "water")
         else:
