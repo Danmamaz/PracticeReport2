@@ -118,11 +118,9 @@ class App(ctk.CTk, CMS):
         enemy_name_l = ctk.CTkLabel(land, text=f"{enemy.image}")
         enemy_name_l.pack(padx=10)
 
-        enemy_sprite = ctk.CTkLabel(land, width=75, height=75, fg_color="gray",
-                                    text="")
+        enemy_sprite = ctk.CTkLabel(land, width=75, height=75, fg_color="transparent",
+                                    text="", image=ctk.CTkImage(Image.open(CMS.image_enemy), size=(75, 75)))
         enemy_sprite.pack()
-
-        # , image=ctk.CTkImage(Image.open(CMS.image_enemy), size=(75, 75))
 
         enemy_health = ctk.CTkProgressBar(land, mode="determinate")
         enemy_health.set(1)

@@ -16,7 +16,7 @@ class Location:
                 Enemy(35, 5, (10, 15), "Rabbit", 30),
                 Enemy(25, 1, (22, 30), "Mushroom", 0)
                ]
-            self.boss = Boss(70, 30, (20, 30), "NIGGA", 50, "thorns")
+            self.boss = Boss(70, 30, (20, 30), "NIGGA", 50, "ram")
         elif self.loc_type == "cave":
             self.enemy_pool = [
                 Enemy(20, 40, (12, 20), "Snail", 10),
@@ -28,8 +28,8 @@ class Location:
 
         elif self.loc_type == "water":
             self.enemy_pool = [
-                Enemy(25, 10, (12, 20), "PufferFish", 15),
-                Enemy(55, 20, (20, 40), "SpongeBob", 30),
+                Enemy(25, 10, (12, 20), "Puffer Fish", 15),
+                Enemy(55, 20, (20, 40), "Sponge Bob", 30),
                 Enemy(20, 10, (10, 15), "Shrimp", 15),
                 Enemy(32, 15, (20, 25), "Octopus", 20),
                 Enemy(25, 10, (15, 30), "Fish", 15)
