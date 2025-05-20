@@ -11,6 +11,11 @@ class CMS:
     enemy_hpb = None
     player = None
     player_hpb = None
+    info_label = None
+    color = None
+    image_enemy = None
+    image_player = None
+    # f"Images/{player.image}.png"
 
     @staticmethod
     def block_buttons():
@@ -21,11 +26,18 @@ class CMS:
     def toggle_moves(self):
         if CMS.enemy.dead:
             self.progress_location()
-
+        elif CMS.player.dead:
+            self.death_screen()
         else:
             CMS.turn_counter += 1
             self.block_buttons()
-            return self.player_move() if (CMS.turn_counter - 1) % 2 == 0 else self.ai_move()
+
+            if (CMS.turn_counter - 1) % 2 == 0:
+                self.player_move()
+                CMS.color = "green"
+            else:
+                self.ai_move()
+                CMS.color = "red"
 
     def player_move(self):
         for button in self.player_buttons:
@@ -45,7 +57,8 @@ class CMS:
         self.after(1000, move)
 
     def progress_location(self):
-        CMS.player.money += CMS.enemy.money
+        if not CMS.round_counter == 4 or not CMS.round_counter == -1:
+            CMS.player.money += CMS.enemy.money
         CMS.turn_counter = 0
         CMS.round_counter += 1
 
@@ -59,4 +72,3 @@ class CMS:
             self.new_location("cave" if CMS.location_i == 2 else "water")
         else:
             self.init_fight(CMS.player, CMS.location.enemy_encounter())
-
