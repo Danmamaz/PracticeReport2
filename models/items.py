@@ -4,30 +4,24 @@ from .mixins import *
 
 class Item:
     def __init__(self):
-        self.effect, self.cost, self.name = choice([(self.heal_small, 20, "Small Healing Potion"),
-                                                    (self.heal_medium, 30, "Medium Healing Potion"),
-                                                    (self.heal_big, 40, "Big Healing Potion"),
-                                                    (self.upgrade_attack, 100, "2X Damage upgrade")])
+        self.effect, self.cost, self.name = choice([(self.heal_small, 20, "Small Healing\nPotion"),
+                                                    (self.heal_medium, 30, "Medium Healing\nPotion"),
+                                                    (self.heal_big, 40, "Big Healing\nPotion"),
+                                                    (self.upgrade_attack, 100, "2X Damage\nupgrade")])
 
     def heal_small(self):
-        print(CMS.player.money)
         if self.buy_item():
             CMS.player.health += CMS.player.max_health / 3
             CMS.player.health = CMS.player.health if CMS.player.health < CMS.player.max_health else CMS.player.max_health
-            print(CMS.player.money)
 
     def heal_medium(self):
-        print(CMS.player.money)
         if self.buy_item():
             CMS.player.health += CMS.player.max_health / 2
             CMS.player.health = CMS.player.health if CMS.player.health < CMS.player.max_health else CMS.player.max_health
-            print(CMS.player.money)
 
     def heal_big(self):
-        print(CMS.player.money)
         if self.buy_item():
             CMS.player.health += CMS.player.max_health
-            print(CMS.player.money)
             CMS.player.health = CMS.player.health if CMS.player.health < CMS.player.max_health else CMS.player.max_health
 
     def upgrade_attack(self):
@@ -37,7 +31,10 @@ class Item:
     def buy_item(self):
         if CMS.player.money > self.cost:
             CMS.player.money -= self.cost
+            print(CMS.player.money)
             self.cost *= 1.5
+            CMS.money_label.configure(text=f"Money: {CMS.player.money}")
+            CMS.money_label.place(x=10, y=10)
             return True
         return False
 

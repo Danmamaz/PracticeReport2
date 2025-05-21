@@ -16,7 +16,7 @@ class Location:
                 Enemy(35, 5, (10, 15), "Rabbit", 30),
                 Enemy(25, 1, (22, 30), "Mushroom", 0)
                ]
-            self.boss = Boss(70, 30, (20, 30), "NIGGA", 50, "ram")
+            self.boss = Boss(70, 30, (20, 30), "THE GOAT", 50, "ram")
         elif self.loc_type == "cave":
             self.enemy_pool = [
                 Enemy(20, 40, (12, 20), "Snail", 10),

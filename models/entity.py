@@ -38,7 +38,6 @@ class Warrior(Entity):
     def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (10, 20), image: str = ""):
         super().__init__(health, armor, damage_range, image)
         self.options = [self.attack, self.defend, self.buff]
-        self.option_buttons = None
         self.buff_counts = 0
         self.buff_mult = 2
         self.unique_option_name = "Buff"
@@ -56,6 +55,10 @@ class Warrior(Entity):
         target.take_damage(damage_amount)
         target_health_bar.set(target.health / target.max_health)
         CMS.info_label.configure(text="Attacked!", text_color=CMS.color)
+
+    def __str__(self):
+        return (f"Health: {self.health}   Armour: {self.armor}"
+                f"")
 
 
 class Shaman(Entity):
@@ -103,7 +106,7 @@ class Mage(Entity):
         self.unique_option_name = "Disease"
 
     def disease(self):
-        CMS.enemy
+        # CMS.enemy
         CMS.info_label.configure(text=f"Next attack will deal {self.buff_mult}x damage", text_color=CMS.color)
 
     def attack(self, target, target_health_bar):
@@ -143,6 +146,11 @@ class Boss(Enemy):
     def thorns(self):
         self.thorns_flag = True
         CMS.info_label.configure(text="Taking damage by attacking", text_color=CMS.color)
+
+    @staticmethod
+    def ram():
+        CMS.skip_turn = True
+        CMS.info_label.configure(text="Player skips next 2 turns", text_color=CMS.color)
 
     def take_damage(self, amount: int):
         if self.defend_counter:

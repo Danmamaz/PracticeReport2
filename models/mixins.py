@@ -5,6 +5,7 @@ class CMS:
     location_i = 1
     round_counter = 0
     turn_counter = 0
+    i = 0
     location = None
     player_buttons = None
     enemy = None
@@ -15,6 +16,8 @@ class CMS:
     color = None
     image_enemy = None
     image_player = None
+    money_label = None
+    skip_turn = False
     # f"Images/{player.image}.png"
 
     @staticmethod
@@ -33,8 +36,13 @@ class CMS:
             self.block_buttons()
 
             if (CMS.turn_counter - 1) % 2 == 0:
-                self.player_move()
-                CMS.color = "green"
+                if not CMS.skip_turn:
+                    self.player_move()
+                    CMS.color = "green"
+                else:
+                    self.ai_move()
+                    CMS.color = "red"
+                    CMS.skip_turn = False
             else:
                 self.ai_move()
                 CMS.color = "red"
@@ -57,10 +65,11 @@ class CMS:
         self.after(1000, move)
 
     def progress_location(self):
-        if not CMS.round_counter == 4 or not CMS.round_counter == -1:
+        if not CMS.round_counter == 4:
             CMS.player.money += CMS.enemy.money
         CMS.turn_counter = 0
         CMS.round_counter += 1
+        print(CMS.player.money)
 
         if CMS.round_counter == 4 or CMS.round_counter == -1:
             self.init_shop()
