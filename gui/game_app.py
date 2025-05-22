@@ -2,6 +2,7 @@ import customtkinter as ctk
 from models.location import *
 from PIL import Image
 from models.items import *
+import json
 
 
 class App(ctk.CTk, CMS):
@@ -16,11 +17,14 @@ class App(ctk.CTk, CMS):
 
         self.my_font = ctk.CTkFont(family="Silkscreen", size=18)
         self.tabview = None
+        self.bg_image = None
         self.death_scr = None
         self.start_button = None
         self.player_buttons = []
 
         self.create_ui()
+        self.load_data()
+        self.protocol("WM_DELETE_WINDOW", self.save_data)
 
     def create_ui(self):
         # Creating main UI component
@@ -28,11 +32,14 @@ class App(ctk.CTk, CMS):
         self.tabview.pack(expand=True, fill="both")
 
         self.fight_ui()
+        self.tutorial_ui()
+        self.store_ui()
 
     def fight_ui(self):
+
         # forgetting old widgets and create point variable for objects to pack
-        if CMS.money_label:
-            CMS.money_label.place_forget()
+        if CMS.run_info:
+            CMS.run_info.place_forget()
 
         for child in self.tabview.tabs["Fight"].winfo_children():
             child.pack_forget()
@@ -42,7 +49,7 @@ class App(ctk.CTk, CMS):
         self.heading.pack(pady=(80, 40))
 
         self.characters_f = ctk.CTkFrame(self.tabview.tabs["Fight"])
-        for i, char in enumerate(["Warrior", "Shaman", "Char 3"]):
+        for i, char in enumerate(["Warrior", "Shaman", "Berserker"]):
             frame = ctk.CTkFrame(self.characters_f)
             heading = ctk.CTkLabel(frame, text=f"{char}", font=self.my_font)
             img_box = ctk.CTkLabel(frame, text="", fg_color="gray", width=100, height=100)
@@ -70,8 +77,18 @@ class App(ctk.CTk, CMS):
         if self.selected_char:
             location = Location("forest")
             CMS.location = location
-            CMS.money_label = ctk.CTkLabel(self.tabview.tabs["Fight"], text=f"Money: {None}", font=self.my_font)
-            CMS.money_label.place(x=10, y=10)
+            CMS.run_info = ctk.CTkFrame(self.tabview.tabs["Fight"], height=200, width=150)
+            CMS.run_info.place(x=10, y=10)
+
+            CMS.money_label = ctk.CTkLabel(CMS.run_info, text="", font=self.my_font)
+            CMS.money_label.pack(padx=10)
+
+            CMS.location_label = ctk.CTkLabel(CMS.run_info, text="", font=("Silkscreen", 18))
+            CMS.location_label.pack(padx=10)
+
+            self.give_up_l = ctk.CTkButton(CMS.run_info, text="Give Up", command=self.give_up)
+            self.give_up_l.pack(padx=10)
+
             self.init_fight(self.selected_char, location.enemy_encounter())
 
         else:
@@ -84,34 +101,40 @@ class App(ctk.CTk, CMS):
             child.pack_forget()
         land = self.tabview.tabs["Fight"]
 
-        heading = ctk.CTkLabel(land, text="Shop", font=self.my_font)
-        heading.pack()
+        heading = ctk.CTkLabel(land, text="Shop", font=("Silkscreen", 24))
+        heading.pack(pady=(80, 30))
 
         items_frame = ctk.CTkFrame(land)
         items_frame.pack()
         for item in [Item() for i in range(3)]:
             frame = ctk.CTkFrame(items_frame)
             image = ctk.CTkLabel(frame, text="", width=75, height=75, fg_color="gray")
-            label = ctk.CTkLabel(frame, text=f"{item}", font=self.my_font)
-            button = ctk.CTkButton(frame, text="Buy", command=lambda i=item: i.effect(), font=self.my_font)
+            label = ctk.CTkLabel(frame, text=f"{item}", font=self.my_font, wraplength=200)
+            button = ctk.CTkButton(frame, text="Buy", command=lambda i=item: i.effect(), font=self.my_font,
+                                   fg_color="#343645", hover_color="#23242E", border_spacing=5)
 
-            frame.pack(side="left")
-            image.pack()
-            label.pack()
-            button.pack()
+            frame.pack(side="left", padx=20, pady=20)
+            image.pack(pady=20)
+            label.pack(padx=20)
+            button.pack(pady=20, padx=20)
 
-        button = ctk.CTkButton(land, text="Leave", command=lambda: self.toggle_moves(), font=self.my_font)
-        button.pack()
+        button = ctk.CTkButton(land, text="Leave", command=lambda: self.toggle_moves(), font=("Silkscreen", 24),
+                                          fg_color="#343645", border_color="#2E2F33", hover_color="#23242E",
+                                          border_spacing=15)
+        button.pack(pady=20)
 
     @staticmethod
     def updateable_ui():
         CMS.money_label.configure(text=f"Money: {CMS.player.money}")
-        CMS.money_label.place(x=10, y=10)
+        CMS.money_label.pack(padx=10)
 
-    @staticmethod
-    def new_location(l_type):
+        CMS.location_label.configure(text=f"Location: {CMS.location.loc_type}")
+        CMS.location_label.pack(padx=10)
+
+    def new_location(self, l_type):
         new_location = Location(l_type)
         CMS.location = new_location
+        self.progress_location()
 
     def init_fight(self, player, enemy):
 
@@ -123,7 +146,6 @@ class App(ctk.CTk, CMS):
         CMS.image_enemy = f"Images/{enemy.image}.png"
         CMS.image_player = f"Images/{player.image}.png"
 
-
         # Enemy UI
         enemy_box = ctk.CTkFrame(land)
         enemy_name_l = ctk.CTkLabel(enemy_box, text=f"{enemy.image}", font=("Silkscreen", 24))
@@ -134,14 +156,15 @@ class App(ctk.CTk, CMS):
                                     font=self.my_font)
         enemy_sprite.pack(padx=20)
 
-        enemy_health = ctk.CTkProgressBar(enemy_box, width=enemy.health * 2, mode="determinate", progress_color="#8C0002")
+        enemy_health = ctk.CTkProgressBar(enemy_box, width=enemy.health * 2,
+                                          mode="determinate", progress_color="#8C0002")
         enemy_health.set(1)
         CMS.enemy_hpb = enemy_health
         enemy_health.pack(pady=15)
         enemy_box.pack(pady=(40, 10))
 
         # Info between enemy and player
-        info_l = ctk.CTkLabel(land, height=100, text="", font=self.my_font)
+        info_l = ctk.CTkLabel(land, height=50, text="", font=self.my_font)
         info_l.pack()
 
         CMS.info_label = info_l
@@ -154,12 +177,19 @@ class App(ctk.CTk, CMS):
         player_health.set((player.health * player.max_health / 100) / 100)
         player_health.pack(pady=15)
 
-        player_options = ctk.CTkFrame(land, width=360, height=80)
-        for i, btn in enumerate(["Attack", "Defend" if not isinstance(player, Shaman) else "Heal", f"{player.unique_option_name}"]):
+        if not isinstance(player, Berserker):
+            options = enumerate(["Attack", "Defend" if not isinstance(player, Shaman) else "Heal", f"{player.unique_option_name}"])
+            w = 360
+        else:
+            w = 250
+            options = enumerate(["Attack", "Defend" if not isinstance(player, Shaman) else "Heal"])
+
+        player_options = ctk.CTkFrame(land, width=w, height=80)
+        for i, btn in options:
             option = ctk.CTkButton(player_options, text=btn, width=100, height=40, state="disabled",
                                    command=player.options[i] if i != 0 else lambda: player.attack(enemy, enemy_health),
-                                   font=("Silkscreen", 18))
-            option.pack(pady=15, padx=10 , side="left")
+                                   font=("Silkscreen", 18), fg_color="#343645", hover_color="#23242E", border_spacing=5)
+            option.pack(pady=15, padx=10, side="left")
             option.bind("<Button-1>", lambda e: self.toggle_moves())
             self.player_buttons.append(option)
 
@@ -194,6 +224,111 @@ class App(ctk.CTk, CMS):
         death_message.pack()
 
         self.selected_char = None
+
+    def tutorial_ui(self):
+        land = self.tabview.tabs["Tutorial"]
+
+        label = ctk.CTkLabel(land, text="Character Tutorial", font=("Silkscreen", 30))
+        label.pack(pady=(100, 10))
+
+        self.frame = ctk.CTkFrame(land)
+        for i in ["Warrior", "Shaman", "Berserker"]:
+            char = eval(f"{i}()")
+            char_frame = ctk.CTkFrame(self.frame)
+            name = ctk.CTkLabel(char_frame, text=i, font=("Silkscreen", 14))
+            image = ctk.CTkLabel(char_frame, text="", width=50, height=50, fg_color="gray")
+            info = ctk.CTkLabel(char_frame, text=f"{char}", font=("Silkscreen", 14))
+
+            name.pack(pady=5)
+            image.pack(pady=5)
+            info.pack(pady=5, padx=5)
+            char_frame.pack(side="left", pady=20, padx=15)
+
+        self.frame.pack(pady=(20, 0))
+
+    def give_up(self):
+        if self.give_up_l.cget("text") == "You sure?":
+            self.fight_ui()
+        self.give_up_l.configure(text="You sure?")
+
+    def init_win(self):
+        if CMS.run_info:
+            CMS.run_info.place_forget()
+
+        for child in self.tabview.tabs["Fight"].winfo_children():
+            child.pack_forget()
+
+        frame = ctk.CTkFrame(self.tabview.tabs["Fight"])
+
+        heading = ctk.CTkLabel(frame, text="Victory!", font=("Silkscreen", 30))
+        heading.pack(pady=10)
+
+        reward = ctk.CTkLabel(frame, font=self.my_font, text="1+ Diamond")
+        reward.pack(pady=10)
+
+        button = ctk.CTkButton(frame, text="Back to menu", font=self.my_font, command=self.fight_ui)
+        button.pack(pady=10)
+
+        frame.pack(pady=150)
+
+    def save_data(self):
+        with open("data.json", "w", encoding="utf-8") as s_file:
+            json.dump({
+                "diamonds": CMS.diamonds,
+                "w_upgrade": CMS.w_upgrade,
+                "s_upgrade": CMS.s_upgrade,
+                "b_upgrade": CMS.b_upgrade
+            }, s_file, indent=4, ensure_ascii=False)
+        self.destroy()
+
+    def store_ui(self):
+        main_frame = ctk.CTkFrame(self.tabview.tabs["Store"])
+        for upg, desc in {
+            "Double Damage": "Warrior buff\nnow is 3x",
+            "Full Heal": "Heal provides\nfull recovery",
+            "More Mult": "More damage\nfor health loss"
+        }.items():
+            frame = ctk.CTkFrame(main_frame)
+            heading = ctk.CTkLabel(frame, text=upg, font=self.my_font)
+            image = ctk.CTkLabel(frame, text="", width=75, height=75, fg_color="gray")
+            description = ctk.CTkLabel(frame, text=desc+"\n1 diamond", font=self.my_font)
+            button = ctk.CTkButton(frame, text="Buy", command=lambda u=upg: self.buy_upg(u))
+
+            heading.pack()
+            image.pack()
+            description.pack()
+            frame.pack(side="left", padx=20, pady=20)
+        main_frame.pack()
+
+    @staticmethod
+    def buy_upg(upgrade):
+        if CMS.diamonds:
+            if upgrade == "Double Damage":
+                CMS.w_upgrade = True
+            elif upgrade == "Full Heal":
+                CMS.s_upgrade = True
+            else:
+                CMS.b_upgrade = True
+            CMS.diamonds -= 1
+
+    @staticmethod
+    def load_data():
+        def insert_data(data):
+            CMS.diamonds = data["diamonds"]
+            CMS.w_upgrade = data["w_upgrade"]
+            CMS.s_upgrade = data["s_upgrade"]
+            CMS.b_upgrade = data["b_upgrade"]
+            print(data)
+        try:
+            with open("data.json", "r", encoding="utf-8") as l_file:
+                insert_data(json.load(l_file))
+        except FileNotFoundError:
+            insert_data({
+                "diamonds": 0,
+                "w_upgrade": False,
+                "s_upgrade": False,
+                "b_upgrade": False
+             })
 
 
 class VerticalTabView(ctk.CTkFrame):
@@ -236,3 +371,6 @@ class VerticalTabView(ctk.CTkFrame):
             button.configure(fg_color="transparent", hover_color="#308E30", text_color="white")
         btn.configure(fg_color="white", hover_color="gray92", text_color="black")
         self.current_button = btn
+
+
+

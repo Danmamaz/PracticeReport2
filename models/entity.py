@@ -35,11 +35,11 @@ class Entity(CMS):
 
 
 class Warrior(Entity):
-    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (10, 20), image: str = ""):
+    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (100, 200), image: str = ""):
         super().__init__(health, armor, damage_range, image)
         self.options = [self.attack, self.defend, self.buff]
         self.buff_counts = 0
-        self.buff_mult = 2
+        self.buff_mult = 2 if not CMS.w_upgrade else 3
         self.unique_option_name = "Buff"
 
     def buff(self):
@@ -57,8 +57,11 @@ class Warrior(Entity):
         CMS.info_label.configure(text="Attacked!", text_color=CMS.color)
 
     def __str__(self):
-        return (f"Health: {self.health}   Armour: {self.armor}"
-                f"")
+        return (f"Health: {self.health}\n"
+                f"Armor: {self.armor}\n"
+                f"Damage: {self.damage[0]}-{self.damage[-1]}\n"
+                f"Ability: {self.unique_option_name}\n"
+                f"Next attack \ndealing 2x damage")
 
 
 class Shaman(Entity):
@@ -89,35 +92,44 @@ class Shaman(Entity):
         CMS.info_label.configure(text="Attacked!", text_color=CMS.color)
 
     def heal(self):
-        self.health += self.heal_amount
+        self.health += self.heal_amount if not CMS.s_upgrade else self.max_health - self.health
         CMS.player_hpb.set(self.health / self.max_health)
         if self.health > self.max_health:
             self.health = self.max_health
         CMS.info_label.configure(text=f"Healed", text_color=CMS.color)
 
+    def __str__(self):
+        return (f"Health: {self.health}\n"
+                f"Armor: {self.armor}\n"
+                f"Damage: {self.damage[0]}-{self.damage[-1]}\n"
+                f"Ability: {self.unique_option_name}\n"
+                f"Removing enemy\nability to heal\n"
+                f"'Heal' instead 'Defend'")
 
-class Mage(Entity):
-    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (10, 20), image: str = ""):
+
+class Berserker(Entity):
+    def __init__(self, health: int = 120, armor: int = 20, damage_range: tuple = (10, 20), image: str = ""):
         super().__init__(health, armor, damage_range, image)
-        self.options = [self.attack, self.defend, self.disease]
+        self.options = [self.attack, self.defend]
         self.option_buttons = None
         self.buff_counts = 0
         self.buff_mult = 2
-        self.unique_option_name = "Disease"
-
-    def disease(self):
-        # CMS.enemy
-        CMS.info_label.configure(text=f"Next attack will deal {self.buff_mult}x damage", text_color=CMS.color)
+        self.unique_option_name = "Rage"
 
     def attack(self, target, target_health_bar):
-        if self.buff_counts != 0:
-            damage_amount = choice(self.damage) * self.buff_mult
-            self.buff_counts -= 1
-        else:
-            damage_amount = choice(self.damage)
+        damage_amount = choice(self.damage) + ((self.max_health+1 - self.health) * .1 if not CMS.b_upgrade else .15)
+        print(damage_amount)
         target.take_damage(damage_amount)
         target_health_bar.set(target.health / target.max_health)
         CMS.info_label.configure(text="Attacked!", text_color=CMS.color)
+
+    def __str__(self):
+        return (f"Health: {self.health}\n"
+                f"Armor: {self.armor}\n"
+                f"Damage: {self.damage[0]}-{self.damage[-1]}\n"
+                f"Ability: {self.unique_option_name}\n"
+                f"Passive: More damage\n"
+                f"the lower health is")
 
 
 class Enemy(Entity):
@@ -162,7 +174,6 @@ class Boss(Enemy):
             CMS.player.take_damage(amount/3)
         if self.health <= 0:
             self.dead = True
-        CMS.info_label.configure(text=f"-{amount} health", text_color=CMS.color)
 
     def heal(self):
         self.health += self.heal_amount

@@ -25,15 +25,14 @@ class Item:
 
     def upgrade_attack(self):
         if self.buy_item():
-            CMS.player.damage_range = tuple([item * 2 for item in CMS.player.damage_range])
+            CMS.player.damage = range(CMS.player.damage[0] * 2, CMS.player.damage[-1] * 2)
 
     def buy_item(self):
         if CMS.player.money >= self.cost:
             CMS.player.money -= self.cost
-            print(CMS.player.money)
             self.cost *= 1.5
             CMS.money_label.configure(text=f"Money: {CMS.player.money}")
-            CMS.money_label.place(x=10, y=10)
+            CMS.money_label.pack()
             return True
         return False
 

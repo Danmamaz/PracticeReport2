@@ -3,7 +3,7 @@ from random import choice
 
 class CMS:
     location_i = 1
-    round_counter = 0
+    round_counter = 1
     turn_counter = 0
     i = 0
     location = None
@@ -18,7 +18,13 @@ class CMS:
     image_player = None
     money_label = None
     skip_turn = False
-    # f"Images/{player.image}.png"
+    location_label = None
+    run_info = None
+
+    b_upgrade = None
+    w_upgrade = None
+    s_upgrade = None
+    diamonds = 0
 
     @staticmethod
     def block_buttons():
@@ -53,7 +59,6 @@ class CMS:
             button.configure(state="normal")
 
     def ai_move(self):
-
         def move():
             option = choice(CMS.enemy.options)
             if option == CMS.enemy.attack:
@@ -65,17 +70,22 @@ class CMS:
         self.after(1000, move)
 
     def progress_location(self):
-        if not CMS.round_counter == 4:
-            CMS.player.money += CMS.enemy.money
+        if CMS.location_i == 4:
+            self.init_win()
+            CMS.diamonds += 1
+            return
         CMS.turn_counter = 0
         CMS.round_counter += 1
 
-        if CMS.round_counter == 4 or CMS.round_counter == -1:
+        if not CMS.round_counter == 5 and not CMS.round_counter == 6:
+            CMS.player.money += CMS.enemy.money
+
+        if CMS.round_counter == 4:
             self.init_shop()
         elif CMS.round_counter == 5:
             self.init_fight(CMS.player, CMS.location.boss_encounter())
         elif CMS.round_counter == 6:
-            CMS.round_counter = -1
+            CMS.round_counter = 0
             CMS.location_i += 1
             self.new_location("cave" if CMS.location_i == 2 else "water")
         else:
