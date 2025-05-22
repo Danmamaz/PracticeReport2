@@ -16,7 +16,7 @@ class Location:
                 Enemy(35, 5, (10, 15), "Rabbit", 30),
                 Enemy(25, 1, (22, 30), "Mushroom", 0)
                ]
-            self.boss = Boss(70, 30, (20, 30), "THE GOAT", 50, "ram")
+            self.boss = Boss(60, 30, (10, 20), "THE GOAT", 50, "ram")
         elif self.loc_type == "cave":
             self.enemy_pool = [
                 Enemy(20, 40, (12, 20), "Snail", 10),
@@ -38,9 +38,6 @@ class Location:
     def enemy_encounter(self):
         enemy = choice(self.enemy_pool)
         return enemy
-
-    def store_section(self):
-        pass
 
     def boss_encounter(self):
         return self.boss

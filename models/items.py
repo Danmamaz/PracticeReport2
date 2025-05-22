@@ -1,4 +1,3 @@
-from random import choice
 from .mixins import *
 
 
@@ -29,7 +28,7 @@ class Item:
             CMS.player.damage_range = tuple([item * 2 for item in CMS.player.damage_range])
 
     def buy_item(self):
-        if CMS.player.money > self.cost:
+        if CMS.player.money >= self.cost:
             CMS.player.money -= self.cost
             print(CMS.player.money)
             self.cost *= 1.5

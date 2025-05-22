@@ -123,19 +123,22 @@ class App(ctk.CTk, CMS):
         CMS.image_enemy = f"Images/{enemy.image}.png"
         CMS.image_player = f"Images/{player.image}.png"
 
-        # Enemy UI
-        enemy_name_l = ctk.CTkLabel(land, text=f"{enemy.image}", font=("Silkscreen", 24))
-        enemy_name_l.pack(pady=(70, 10))
 
-        enemy_sprite = ctk.CTkLabel(land, width=125, height=125, fg_color="transparent",
+        # Enemy UI
+        enemy_box = ctk.CTkFrame(land)
+        enemy_name_l = ctk.CTkLabel(enemy_box, text=f"{enemy.image}", font=("Silkscreen", 24))
+        enemy_name_l.pack(pady=10)
+
+        enemy_sprite = ctk.CTkLabel(enemy_box, width=125, height=125, fg_color="transparent",
                                     text="", image=ctk.CTkImage(Image.open(CMS.image_enemy), size=(125, 125)),
                                     font=self.my_font)
-        enemy_sprite.pack()
+        enemy_sprite.pack(padx=20)
 
-        enemy_health = ctk.CTkProgressBar(land, width=enemy.health * 5, mode="determinate", progress_color="#8C0002")
+        enemy_health = ctk.CTkProgressBar(enemy_box, width=enemy.health * 2, mode="determinate", progress_color="#8C0002")
         enemy_health.set(1)
         CMS.enemy_hpb = enemy_health
-        enemy_health.pack(pady=5)
+        enemy_health.pack(pady=15)
+        enemy_box.pack(pady=(40, 10))
 
         # Info between enemy and player
         info_l = ctk.CTkLabel(land, height=100, text="", font=self.my_font)
@@ -147,16 +150,16 @@ class App(ctk.CTk, CMS):
         player_sprite = ctk.CTkLabel(land, width=125, height=125, fg_color="gray", text="")
         player_sprite.pack()
 
-        player_health = ctk.CTkProgressBar(land, width=player.health * 5, mode="determinate", progress_color="#005F0D")
+        player_health = ctk.CTkProgressBar(land, width=player.max_health * 2, mode="determinate")
         player_health.set((player.health * player.max_health / 100) / 100)
-        player_health.pack()
+        player_health.pack(pady=15)
 
-        player_options = ctk.CTkFrame(land)
+        player_options = ctk.CTkFrame(land, width=360, height=80)
         for i, btn in enumerate(["Attack", "Defend" if not isinstance(player, Shaman) else "Heal", f"{player.unique_option_name}"]):
-            option = ctk.CTkButton(player_options, text=btn, width=80, height=30, state="disabled",
+            option = ctk.CTkButton(player_options, text=btn, width=100, height=40, state="disabled",
                                    command=player.options[i] if i != 0 else lambda: player.attack(enemy, enemy_health),
-                                   font=self.my_font)
-            option.pack(pady=15, side="left")
+                                   font=("Silkscreen", 18))
+            option.pack(pady=15, padx=10 , side="left")
             option.bind("<Button-1>", lambda e: self.toggle_moves())
             self.player_buttons.append(option)
 
@@ -165,6 +168,7 @@ class App(ctk.CTk, CMS):
         CMS.player = player
         CMS.player_hpb = player_health
 
+        player_options.pack_propagate(False)
         player_options.pack()
         self.updateable_ui()
         self.toggle_moves()

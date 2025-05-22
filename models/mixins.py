@@ -69,7 +69,6 @@ class CMS:
             CMS.player.money += CMS.enemy.money
         CMS.turn_counter = 0
         CMS.round_counter += 1
-        print(CMS.player.money)
 
         if CMS.round_counter == 4 or CMS.round_counter == -1:
             self.init_shop()
