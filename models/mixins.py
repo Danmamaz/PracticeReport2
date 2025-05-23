@@ -20,6 +20,7 @@ class CMS:
     skip_turn = False
     location_label = None
     run_info = None
+    counter = None
 
     b_upgrade = None
     w_upgrade = None
@@ -73,6 +74,7 @@ class CMS:
         if CMS.location_i == 4:
             self.init_win()
             CMS.diamonds += 1
+            CMS.refresh_diamond_counter()
             return
         CMS.turn_counter = 0
         CMS.round_counter += 1
@@ -90,3 +92,7 @@ class CMS:
             self.new_location("cave" if CMS.location_i == 2 else "water")
         else:
             self.init_fight(CMS.player, CMS.location.enemy_encounter())
+
+    @staticmethod
+    def refresh_diamond_counter():
+        CMS.counter.configure(text=f"Diamonds\n{CMS.diamonds}")

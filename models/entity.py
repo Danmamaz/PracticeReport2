@@ -35,7 +35,7 @@ class Entity(CMS):
 
 
 class Warrior(Entity):
-    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (100, 200), image: str = ""):
+    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (100, 200), image: str = "Warrior"):
         super().__init__(health, armor, damage_range, image)
         self.options = [self.attack, self.defend, self.buff]
         self.buff_counts = 0
@@ -65,7 +65,7 @@ class Warrior(Entity):
 
 
 class Shaman(Entity):
-    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (8, 15), image: str = ""):
+    def __init__(self, health: int = 1, armor: int = 20, damage_range: tuple = (8, 15), image: str = "Shaman"):
         super().__init__(health, armor, damage_range, image)
         self.options = [self.attack, self.heal, self.skadi]
         self.option_buttons = None
@@ -108,7 +108,7 @@ class Shaman(Entity):
 
 
 class Berserker(Entity):
-    def __init__(self, health: int = 120, armor: int = 20, damage_range: tuple = (10, 20), image: str = ""):
+    def __init__(self, health: int = 120, armor: int = 20, damage_range: tuple = (10, 20), image: str = "Berserker"):
         super().__init__(health, armor, damage_range, image)
         self.options = [self.attack, self.defend]
         self.option_buttons = None
