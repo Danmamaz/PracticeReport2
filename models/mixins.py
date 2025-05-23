@@ -31,7 +31,7 @@ class CMS:
     def block_buttons():
         for button in CMS.player_buttons:
             button.unbind("<Button-1>")
-            button.configure(state="disabled")
+            button.configure(state="disabled", fg_color="black")
 
     def toggle_moves(self):
         if CMS.enemy.dead:
@@ -57,7 +57,7 @@ class CMS:
     def player_move(self):
         for button in self.player_buttons:
             button.bind("<Button-1>", lambda e: self.toggle_moves())
-            button.configure(state="normal")
+            button.configure(state="normal", fg_color="#343645")
 
     def ai_move(self):
         def move():
@@ -74,6 +74,8 @@ class CMS:
         if CMS.location_i == 4:
             self.init_win()
             CMS.diamonds += 1
+            CMS.location_i = 1
+            CMS.round_counter = 1
             CMS.refresh_diamond_counter()
             return
         CMS.turn_counter = 0

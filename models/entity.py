@@ -2,11 +2,10 @@ from models.mixins import *
 
 
 class Entity(CMS):
-    def __init__(self, health: int, armor: int, damage_range: tuple, image: str):
+    def __init__(self, health: int, damage_range: tuple, image: str):
         self.dead = False
         self.health = health
         self.max_health = health
-        self.armor = armor
         self.damage = range(*damage_range)
         self.heal_amount = self.max_health * 20/100
         self.defend_counter = 0
@@ -35,8 +34,8 @@ class Entity(CMS):
 
 
 class Warrior(Entity):
-    def __init__(self, health: int = 100, armor: int = 20, damage_range: tuple = (100, 200), image: str = "Warrior"):
-        super().__init__(health, armor, damage_range, image)
+    def __init__(self, health: int = 100, damage_range: tuple = (100, 200), image: str = "Warrior"):
+        super().__init__(health, damage_range, image)
         self.options = [self.attack, self.defend, self.buff]
         self.buff_counts = 0
         self.buff_mult = 2 if not CMS.w_upgrade else 3
@@ -65,8 +64,8 @@ class Warrior(Entity):
 
 
 class Shaman(Entity):
-    def __init__(self, health: int = 1, armor: int = 20, damage_range: tuple = (8, 15), image: str = "Shaman"):
-        super().__init__(health, armor, damage_range, image)
+    def __init__(self, health: int = 1, damage_range: tuple = (8, 15), image: str = "Shaman"):
+        super().__init__(health, damage_range, image)
         self.options = [self.attack, self.heal, self.skadi]
         self.option_buttons = None
         self.buff_counts = 0
@@ -108,8 +107,8 @@ class Shaman(Entity):
 
 
 class Berserker(Entity):
-    def __init__(self, health: int = 120, armor: int = 20, damage_range: tuple = (10, 20), image: str = "Berserker"):
-        super().__init__(health, armor, damage_range, image)
+    def __init__(self, health: int = 120, damage_range: tuple = (10, 20), image: str = "Berserker"):
+        super().__init__(health, damage_range, image)
         self.options = [self.attack, self.defend]
         self.option_buttons = None
         self.buff_counts = 0
@@ -133,8 +132,8 @@ class Berserker(Entity):
 
 
 class Enemy(Entity):
-    def __init__(self, health: int, armor: int, damage_range: tuple, image: str, money: int):
-        super().__init__(health, armor, damage_range, image)
+    def __init__(self, health: int, damage_range: tuple, image: str, money: int):
+        super().__init__(health, damage_range, image)
         self.money = money
         self.options = [self.attack, self.defend, self.heal]
 
@@ -150,8 +149,8 @@ class Enemy(Entity):
 
 
 class Boss(Enemy):
-    def __init__(self, health: int, armor: int, damage_range: tuple, image: str, money: int, special_move: str):
-        super().__init__(health, armor, damage_range, image, money)
+    def __init__(self, health: int, damage_range: tuple, image: str, money: int, special_move: str):
+        super().__init__(health, damage_range, image, money)
         self.thorns_flag = False
         self.options = [self.attack, self.defend, self.heal, eval(f"self.{special_move}")]
 

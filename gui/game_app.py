@@ -394,6 +394,3 @@ class VerticalTabView(ctk.CTkFrame):
             button.configure(fg_color="transparent", hover_color="#308E30", text_color="white")
         btn.configure(fg_color="white", hover_color="gray92", text_color="black")
         self.current_button = btn
-
-
-
