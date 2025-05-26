@@ -21,6 +21,10 @@ class CMS:
     location_label = None
     run_info = None
     counter = None
+    bg_color = None
+    sprite = None
+    sprites = [("Images/Tree.png", (50, 200)),("Images/Tree.png", (550, 70)),("Images/Tree.png", (500, 300))]
+    c_sprites = []
 
     b_upgrade = None
     w_upgrade = None
@@ -38,6 +42,8 @@ class CMS:
             self.progress_location()
         elif CMS.player.dead:
             self.death_screen()
+            CMS.location_i = 1
+            CMS.round_counter = 1
         else:
             CMS.turn_counter += 1
             self.block_buttons()

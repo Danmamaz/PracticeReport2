@@ -30,11 +30,10 @@ class Entity(CMS):
         self.health -= amount
         if self.health <= 0:
             self.dead = True
-        CMS.info_label.configure(text=f"-{amount} health", text_color=CMS.color)
 
 
 class Warrior(Entity):
-    def __init__(self, health: int = 100, damage_range: tuple = (100, 200), image: str = "Warrior"):
+    def __init__(self, health: int = 100, damage_range: tuple = (14, 18), image: str = "Warrior"):
         super().__init__(health, damage_range, image)
         self.options = [self.attack, self.defend, self.buff]
         self.buff_counts = 0
@@ -57,14 +56,13 @@ class Warrior(Entity):
 
     def __str__(self):
         return (f"Health: {self.health}\n"
-                f"Armor: {self.armor}\n"
                 f"Damage: {self.damage[0]}-{self.damage[-1]}\n"
                 f"Ability: {self.unique_option_name}\n"
                 f"Next attack \ndealing 2x damage")
 
 
 class Shaman(Entity):
-    def __init__(self, health: int = 1, damage_range: tuple = (8, 15), image: str = "Shaman"):
+    def __init__(self, health: int = 80, damage_range: tuple = (8, 12), image: str = "Shaman"):
         super().__init__(health, damage_range, image)
         self.options = [self.attack, self.heal, self.skadi]
         self.option_buttons = None
@@ -99,7 +97,6 @@ class Shaman(Entity):
 
     def __str__(self):
         return (f"Health: {self.health}\n"
-                f"Armor: {self.armor}\n"
                 f"Damage: {self.damage[0]}-{self.damage[-1]}\n"
                 f"Ability: {self.unique_option_name}\n"
                 f"Removing enemy\nability to heal\n"
@@ -107,7 +104,7 @@ class Shaman(Entity):
 
 
 class Berserker(Entity):
-    def __init__(self, health: int = 120, damage_range: tuple = (10, 20), image: str = "Berserker"):
+    def __init__(self, health: int = 100, damage_range: tuple = (10, 15), image: str = "Berserker"):
         super().__init__(health, damage_range, image)
         self.options = [self.attack, self.defend]
         self.option_buttons = None
@@ -117,14 +114,12 @@ class Berserker(Entity):
 
     def attack(self, target, target_health_bar):
         damage_amount = choice(self.damage) + ((self.max_health+1 - self.health) * .1 if not CMS.b_upgrade else .15)
-        print(damage_amount)
         target.take_damage(damage_amount)
         target_health_bar.set(target.health / target.max_health)
         CMS.info_label.configure(text="Attacked!", text_color=CMS.color)
 
     def __str__(self):
         return (f"Health: {self.health}\n"
-                f"Armor: {self.armor}\n"
                 f"Damage: {self.damage[0]}-{self.damage[-1]}\n"
                 f"Ability: {self.unique_option_name}\n"
                 f"Passive: More damage\n"
@@ -162,6 +157,10 @@ class Boss(Enemy):
     def ram():
         CMS.skip_turn = True
         CMS.info_label.configure(text="Player skips next 2 turns", text_color=CMS.color)
+
+    def shotgun(self):
+        self.damage = range(self.damage[0] * 2, self.damage[-1] * 2)
+        CMS.info_label.configure(text="Increases damage by 2x", text_color=CMS.color)
 
     def take_damage(self, amount: int):
         if self.defend_counter:

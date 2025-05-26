@@ -9,8 +9,8 @@ class App(ctk.CTk, CMS):
     def __init__(self):
         super().__init__()
         self.geometry("1000x600")
-        self.title("Game")
-        # self.iconbitmap("")
+        self.title("Seek Of Adventure")
+        self.iconbitmap("Images/Logo.ico")
         self.resizable(False, False)
         ctk.set_appearance_mode("light")
         self.selected_char = None
@@ -36,7 +36,12 @@ class App(ctk.CTk, CMS):
         self.store_ui()
 
     def fight_ui(self):
+        if CMS.c_sprites:
+            for item in CMS.c_sprites:
+                item.destroy()
+            CMS.c_sprites.clear()
 
+        self.tabview.tabs["Fight"].configure(fg_color="gray86")
         # forgetting old widgets and create point variable for objects to pack
         if CMS.run_info:
             CMS.run_info.place_forget()
@@ -110,7 +115,7 @@ class App(ctk.CTk, CMS):
         items_frame.pack()
         for item in [Item() for i in range(3)]:
             frame = ctk.CTkFrame(items_frame)
-            image = ctk.CTkLabel(frame, text="", width=75, height=75, fg_color="gray")
+            image = ctk.CTkLabel(frame, text="", width=75, height=75, image=ctk.CTkImage(Image.open("Images/Bag of Money.png"), size=(75, 75)))
             label = ctk.CTkLabel(frame, text=f"{item}", font=self.my_font, wraplength=200)
             button = ctk.CTkButton(frame, text="Buy", command=lambda i=item: i.effect(), font=self.my_font,
                                    fg_color="#343645", hover_color="#23242E", border_spacing=5)
@@ -139,7 +144,16 @@ class App(ctk.CTk, CMS):
         self.progress_location()
 
     def init_fight(self, player, enemy):
+        for item in CMS.c_sprites:
+            item.destroy()
+        CMS.c_sprites.clear()
 
+        for sprite, cords in CMS.sprites:
+            item = ctk.CTkLabel(self.tabview.tabs["Fight"], text="", image=ctk.CTkImage(Image.open(sprite), size=(200, 200)))
+            item.place(x=cords[0], y=cords[1])
+            CMS.c_sprites.append(item)
+
+        self.tabview.tabs["Fight"].configure(fg_color=CMS.bg_color)
         # forgetting old widgets and create point variable for objects to pack
         for child in self.tabview.tabs["Fight"].winfo_children():
             child.pack_forget()
@@ -172,13 +186,16 @@ class App(ctk.CTk, CMS):
         CMS.info_label = info_l
 
         # Player UI
-        player_sprite = ctk.CTkLabel(land, width=125, height=125,
+        player_box = ctk.CTkFrame(land)
+        player_sprite = ctk.CTkLabel(player_box, width=125, height=125,
                                      image=ctk.CTkImage(Image.open(CMS.image_player), size=(125, 125)), text="")
-        player_sprite.pack()
+        player_sprite.pack(pady=(10, 0))
 
-        player_health = ctk.CTkProgressBar(land, width=player.max_health * 2, mode="determinate")
+        player_health = ctk.CTkProgressBar(player_box, width=player.max_health * 2, mode="determinate")
         player_health.set((player.health * player.max_health / 100) / 100)
-        player_health.pack(pady=15)
+        player_health.pack(pady=15, padx=10)
+
+        player_box.pack(pady=10)
 
         if not isinstance(player, Berserker):
             options = enumerate(["Attack", "Defend" if not isinstance(player, Shaman) else "Heal", f"{player.unique_option_name}"])
@@ -336,7 +353,6 @@ class App(ctk.CTk, CMS):
     @staticmethod
     def load_data():
         def insert_data(data):
-            print(data["diamonds"])
             CMS.diamonds = data["diamonds"]
             CMS.w_upgrade = data["w_upgrade"]
             CMS.s_upgrade = data["s_upgrade"]
@@ -371,17 +387,16 @@ class VerticalTabView(ctk.CTkFrame):
         self.right_frame = ctk.CTkFrame(self)
         self.right_frame.pack(side="left", fill="both", expand=True)
 
-        self.logo = ctk.CTkLabel(self.left_frame, text="", width=150, height=150, fg_color="gray")
+        self.logo = ctk.CTkLabel(self.left_frame, text="", width=150, height=150, image=ctk.CTkImage(Image.open("Images/Logo.png"), size=(150,150)))
         self.logo.pack(pady=(40, 20))
         for name in tabs:
             btn = ctk.CTkButton(self.left_frame, text=name, width=150, height=40, font=self.my_font)
             btn.configure(command=lambda b=btn, n=name: self.switch_tab(n, b))
             btn.pack(pady=10)
 
-            frame = ctk.CTkFrame(self.right_frame)
+            frame = ctk.CTkFrame(self.right_frame, corner_radius=0)
             self.tabs[name] = frame
             self.buttons.append(btn)
-
         self.switch_tab(list(tabs.keys())[0], self.buttons[0])
 
     def switch_tab(self, name, btn):
