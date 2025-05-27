@@ -23,7 +23,7 @@ class CMS:
     counter = None
     bg_color = None
     sprite = None
-    sprites = [("Images/Tree.png", (50, 200)),("Images/Tree.png", (550, 70)),("Images/Tree.png", (500, 300))]
+    sprites = [("Images/Tree.png", (50, 200)), ("Images/Tree.png", (550, 70)), ("Images/Tree.png", (500, 300))]
     c_sprites = []
 
     b_upgrade = None

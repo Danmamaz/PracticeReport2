@@ -62,7 +62,7 @@ class Warrior(Entity):
 
 
 class Shaman(Entity):
-    def __init__(self, health: int = 80, damage_range: tuple = (8, 12), image: str = "Shaman"):
+    def __init__(self, health: int = 100, damage_range: tuple = (12, 18), image: str = "Shaman"):
         super().__init__(health, damage_range, image)
         self.options = [self.attack, self.heal, self.skadi]
         self.option_buttons = None
@@ -113,7 +113,7 @@ class Berserker(Entity):
         self.unique_option_name = "Rage"
 
     def attack(self, target, target_health_bar):
-        damage_amount = choice(self.damage) + ((self.max_health+1 - self.health) * .1 if not CMS.b_upgrade else .15)
+        damage_amount = choice(self.damage) + ((self.max_health+1 - self.health) * .15 if not CMS.b_upgrade else .2)
         target.take_damage(damage_amount)
         target_health_bar.set(target.health / target.max_health)
         CMS.info_label.configure(text="Attacked!", text_color=CMS.color)

@@ -38,7 +38,7 @@ class Item:
 
     def upgrade_attack_half_x(self):
         if self.buy_item():
-            CMS.player.damage = range(CMS.player.damage[0] * 1.5, CMS.player.damage[-1] * 1.5)
+            CMS.player.damage = range(int(CMS.player.damage[0] * 1.5), int(CMS.player.damage[-1] * 1.5))
 
     def buy_item(self):
         if CMS.player.money >= self.cost:

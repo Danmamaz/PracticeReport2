@@ -320,7 +320,7 @@ class App(ctk.CTk, CMS):
 
         diamond_counter.place(x=10, y=10)
 
-        for name, upg, desc in (
+        for name, upg, desc, upg_var in (
             ("Warrior", "Sword", "Warrior buff\nnow is 3x"),
             ("Shaman", "Potion", "Heal provides\nfull recovery"),
             ("Berserker", "Blood Drop", "More damage\nfor health loss")
@@ -339,16 +339,16 @@ class App(ctk.CTk, CMS):
             frame.pack(side="left", padx=20, pady=20)
         main_frame.pack()
 
-    @staticmethod
-    def buy_upg(upgrade):
+    def buy_upg(self, upgrade):
         if CMS.diamonds:
-            if upgrade == "Double Damage":
+            if upgrade == "Sword":
                 CMS.w_upgrade = True
-            elif upgrade == "Full Heal":
+            elif upgrade == "Potion":
                 CMS.s_upgrade = True
             else:
                 CMS.b_upgrade = True
             CMS.diamonds -= 1
+            CMS.counter.configure(text=f"Diamonds\n{CMS.diamonds}")
 
     @staticmethod
     def load_data():
